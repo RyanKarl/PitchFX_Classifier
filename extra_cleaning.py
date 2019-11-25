@@ -3,12 +3,15 @@ import argparse
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--file", "-f", type=str, required=True)
+parser.add_argument("--start", "-s", type=int, required=True)
+parser.add_argument("--end", "-e", type=int, required=True)
+
 args = parser.parse_args()
 
 filename = args.file
 df = pandas.read_csv(filename)
 
-for i in range(522,678):
+for i in range(args.start,args.end):
     print(df.columns[i])
     df.drop(df.columns[i], axis=1)
 

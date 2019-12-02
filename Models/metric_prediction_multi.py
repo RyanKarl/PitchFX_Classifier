@@ -29,7 +29,7 @@ intersting_metrics = ['ERA', 'xFIP', 'K/9', 'H/9', 'AVG', 'BABIP', 'GB%']
 
 # WHICH METRIC WE WANT TO CREATE A MODEL FOR
 for metric_to_estimate in intersting_metrics:
-
+    print(metric_to_estimate)
     # Extract data for that metric
     metric = np.array(labels[[metric_to_estimate]].values.tolist())
     metric = metric[:, 0]
@@ -58,17 +58,17 @@ for metric_to_estimate in intersting_metrics:
     #                                        max_iter=20000,
     #                                        learning_rate_init=0.01,
     #                                        alpha=0.01)
-    net = MLPRegressor() # otherwise use default params
+    net = MLPRegressor(max_iter=20000) # otherwise use default params
 
     # All models we want to test, use default parameters for all
-    models = {'Linear Regression':linear_model.LinearRegression(), 'SVM Regression':SVR(),
+    models = {'Linear Regression':linear_model.LinearRegression(), 'SVM Regression':SVR(gamma="scale"),
             'AdaBoost Regression':AdaBoostRegressor(), 'Multilayer Perceptron':net}
 
     # For every pitch we are concerned with
     for pitch_type in pitch_types:
         # to store all useful data
         pitch_data = []
-        print("\n\n" + pitch_type)
+        # print("\n\n" + pitch_type)
         # For all features in the data
         for column in df.columns.values:
             # Unused columns
@@ -149,6 +149,6 @@ for metric_to_estimate in intersting_metrics:
             # print("Model: " + model_name + "; Pitch Type: " + pitch_type + ": MAE: " + str(mae) + ", MSE: " + str(mse)
             #       + ", R2 score: " + str(r2))                       # Print scores
 
-        print("Best model to minimize MAE: " + mae_model + ", MAE = " + str(min_mae))
-        print("Best model to minimize MSE: " + mse_model + ", MSE = " + str(min_mse))
-        print("Best model to minimize R2: " + r2_model + ", R2 = " + str(max_r2))
+        # print("Best model to minimize MAE: " + mae_model + ", MAE = " + str(min_mae))
+        # print("Best model to minimize MSE: " + mse_model + ", MSE = " + str(min_mse))
+        # print("Best model to minimize R2: " + r2_model + ", R2 = " + str(max_r2))

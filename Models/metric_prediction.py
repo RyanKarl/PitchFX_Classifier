@@ -11,13 +11,13 @@ from sklearn.ensemble import AdaBoostRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 # Input CSV containing all info on files that are enrolled
-info = '2018_data.csv'
+info = '../Data/2018clean.csv'
 
 # Read in data
 df = pd.read_csv(info)
 
 # CSV file containing the metrics we want to estimate using name as a key
-l = '2018_labels.csv'
+l = '../Labels/Players_Stats_2018.csv'
 
 labels = pd.read_csv(l)
 
@@ -59,7 +59,7 @@ pitch_types = ['SL','FF','CU','FT','CH','FC','KC','SI','PO','FS']
 net = MLPRegressor() # otherwise use default params
 
 # All models we want to test, use default parameters for all
-models = {'Linear Regression':linear_model.LinearRegression(), 'SVM Regression':SVR(gamma="scale"),
+models = {'Linear Regression':linear_model.LinearRegression(), 'SVM Regression':SVR(),
           'AdaBoost Regression':AdaBoostRegressor(), 'Multilayer Perceptron':net}
 
 # For every pitch we are concerned with

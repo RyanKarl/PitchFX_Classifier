@@ -115,6 +115,13 @@ for pitch_type in pitch_types:
     X_test = X_test[:, :num_feats]
 
     # For all models we want to test
+
+    min_mae = float("inf")
+    mae_model = ''
+    min_mse = float("inf")
+    mse_model = ''
+    max_r2 = float("-inf")
+    r2_model = ''
     for model_name in models:
         model = models[model_name]                              # Get model
         reg = model.fit(X_train, y_train)                       # Train model
@@ -124,5 +131,22 @@ for pitch_type in pitch_types:
         mae = mean_absolute_error(y_test, predictions)          # Mean Absolute Error
         r2 = reg.score(X_test, y_test)                          # R2 Score
 
-        print("Model: " + model_name + "; Pitch Type: " + pitch_type + ": MAE: " + str(mae) + ", MSE: " + str(mse)
-              + ", R2 score: " + str(r2))                       # Print scores
+        if mse < min_mse:
+            min_mse = mse
+            mse_model = model_name
+
+        if mae < min_mae:
+            min_mae = mae
+            mae_model = model_name
+
+        if r2 > max_r2:
+            max_r2 = r2
+            r2_model = model_name
+
+
+        # print("Model: " + model_name + "; Pitch Type: " + pitch_type + ": MAE: " + str(mae) + ", MSE: " + str(mse)
+        #       + ", R2 score: " + str(r2))                       # Print scores
+
+    print("Best model to minimize MAE: " + mae_model + ", MAE = " + str(min_mae))
+    print("Best model to minimize MSE: " + mse_model + ", MSE = " + str(min_mse))
+    print("Best model to minimize R2: " + r2_model + ", R2 = " + str(max_r2))

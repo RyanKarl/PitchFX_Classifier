@@ -11,23 +11,19 @@ from sklearn.ensemble import AdaBoostRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 from statistics import mode
-
 from joblib import dump, load
+from data_loader import get_data
 
-# Input CSV containing all info on files that are enrolled
-info = '../Data/2018clean.csv'
+# # Input CSV containing all info on files that are enrolled
+# info = '../Data/2018clean.csv'
 
-# Read in data
-df = pd.read_csv(info)
+# # Read in data
+# df = pd.read_csv(info)
 
-# CSV file containing the metrics we want to estimate using name as a key
-l = '../Labels/Players_Stats_2018.csv'
+# # CSV file containing the metrics we want to estimate using name as a key
+# l = '../Labels/Players_Stats_2018.csv'
 
-labels = pd.read_csv(l)
-
-# Extract names of players in a given year
-names = np.array(labels[['Name']].values.tolist())
-names = names[:,0]
+# labels = pd.read_csv(l)
 
 # The metrics we are interested in predicting
 # intersting_metrics = ['ERA', 'xFIP', 'K/9', 'H/9', 'AVG', 'BABIP', 'GB%']
@@ -35,6 +31,12 @@ intersting_metrics = ['ERA']
 
 # WHICH METRIC WE WANT TO CREATE A MODEL FOR
 for metric_to_estimate in intersting_metrics:
+
+    df, labels = get_data(2015, 2018, target=metric_to_estimate, future=False)
+
+    # Extract names of players in a given year
+    names = np.array(labels[['Name']].values.tolist())
+    names = names[:,0]
     print(metric_to_estimate)
     # Extract data for that metric
     metric = np.array(labels[[metric_to_estimate]].values.tolist())

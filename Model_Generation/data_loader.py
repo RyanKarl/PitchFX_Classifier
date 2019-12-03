@@ -7,14 +7,14 @@ def get_data(start_year, end_year, target='ERA', future=False):
     infos=[]
 
     for x in range(start_year, end_year):
-        infos.append('Data/'+str(x)+'clean.csv')
+        infos.append('../Data/'+str(x)+'clean.csv')
     ls = []
     # Read in data
     for x in range(start_year, end_year):
         if future:
-            ls.append('Labels/Players_Stats_'+str(x + 1) + '.csv')
+            ls.append('../Labels/Players_Stats_'+str(x + 1) + '.csv')
         else:
-            ls.append('Labels/Players_Stats_' + str(x) + '.csv')
+            ls.append('../Labels/Players_Stats_' + str(x) + '.csv')
     out=[]
     out_labels=[]
     for x in range(len(ls)):
@@ -42,15 +42,5 @@ def get_data(start_year, end_year, target='ERA', future=False):
             except KeyError as e:
                 i+=1
     df = pd.DataFrame(out)
-    df_l = pd.DataFrame(out_labels)
+    df_l = pd.DataFrame(out_labels,columns=['Name',target])
     return(df,df_l)
-
-
-
-
-
-test = get_data(2010,2019,target='ERA',future=False)
-test[0].to_csv('2010to2019.csv')
-test[1].to_csv('2010to2019ERA.csv')
-print(test[0])
-print(test[1])

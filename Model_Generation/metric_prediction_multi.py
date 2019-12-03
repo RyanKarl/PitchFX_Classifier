@@ -17,14 +17,14 @@ import os
 
 
 # The metrics we are interested in predicting
-# intersting_metrics = ['ERA', 'xFIP', 'K/9', 'H/9', 'AVG', 'BABIP', 'GB%']
-intersting_metrics = ['ERA']
+intersting_metrics = ['ERA', 'xFIP', 'K/9', 'H/9', 'AVG', 'BABIP', 'GB%']
+# intersting_metrics = ['ERA']
 future = False
 
 # WHICH METRIC WE WANT TO CREATE A MODEL FOR
 for metric_to_estimate in intersting_metrics:
 
-    df, labels = get_data(2015, 2018, target=metric_to_estimate, future=future)
+    df, labels = get_data(2015, 2019, target=metric_to_estimate, future=future)
 
     # Extract names of players in a given year
     names = np.array(labels[['Name']].values.tolist())
@@ -126,8 +126,6 @@ for metric_to_estimate in intersting_metrics:
             X_test = X_test[:, :num_feats]
 
             # For all models we want to test
-
-            
             for model_name in models:
                 model = models[model_name]                              # Get model
                 reg = model.fit(X_train, y_train)                       # Train model
@@ -179,16 +177,54 @@ for metric_to_estimate in intersting_metrics:
 
         print("\nOverall Best Model for " + pitch_type + " is " + best_model)
 
-        model = models[model_name]                              # Get model
+        model = models[best_model]                              # Get model
+
+        # Normalize all features between 0 and 1 independently
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        scaler.fit(pitch_data)
+        pitch_data = scaler.transform(pitch_data)
+        # print('Number of elements in test set: ' + str(len(X_test)))
+
+        # Reduce dimensionality to 90% of the explained variance or 10, whichever is minimum
+        pca = PCA(n_components=10)
+        pca.fit(pitch_data)
+        pitch_data = pca.transform(pitch_data)
+        expl_var = 0
+        num_feats = 0
+        for val in pca.explained_variance_ratio_:
+            expl_var = expl_var + val
+            num_feats = num_feats + 1
+            if expl_var >= 0.9:
+                break
+        pitch_data = pitch_data[:, :num_feats]
+
         reg = model.fit(pitch_data, y_scores)                   # Train model
 
         if future == False:
             subdir = "Present"
         else:
             subdir = "Future"
+
+        # Save out model
         destination = "../Models/" + metric_to_estimate + "/" + subdir + "/"
         if not os.path.exists(destination):
             os.makedirs(destination)
 
         filename = pitch_type + "_" + best_model.replace(" ", "_") + '.joblib'
-        dump(reg, destination + filename) 
+        dump(reg, destination + filename)
+
+        # Save out scaler
+        destination = "../Scalers/" + metric_to_estimate + "/" + subdir + "/"
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+
+        filename = pitch_type + "_" + best_model.replace(" ", "_") + '.joblib'
+        dump(scaler, destination + filename)
+
+        # Save out PCA model
+        destination = "../PCA_Models/" + metric_to_estimate + "/" + subdir + "/"
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+
+        filename = pitch_type + "_" + best_model.replace(" ", "_") + '.joblib'
+        dump(pca, destination + filename)

@@ -13,26 +13,18 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from statistics import mode
 from joblib import dump, load
 from data_loader import get_data
+import os
 
-# # Input CSV containing all info on files that are enrolled
-# info = '../Data/2018clean.csv'
-
-# # Read in data
-# df = pd.read_csv(info)
-
-# # CSV file containing the metrics we want to estimate using name as a key
-# l = '../Labels/Players_Stats_2018.csv'
-
-# labels = pd.read_csv(l)
 
 # The metrics we are interested in predicting
 # intersting_metrics = ['ERA', 'xFIP', 'K/9', 'H/9', 'AVG', 'BABIP', 'GB%']
 intersting_metrics = ['ERA']
+future = False
 
 # WHICH METRIC WE WANT TO CREATE A MODEL FOR
 for metric_to_estimate in intersting_metrics:
 
-    df, labels = get_data(2015, 2018, target=metric_to_estimate, future=False)
+    df, labels = get_data(2015, 2018, target=metric_to_estimate, future=future)
 
     # Extract names of players in a given year
     names = np.array(labels[['Name']].values.tolist())
@@ -189,4 +181,14 @@ for metric_to_estimate in intersting_metrics:
 
         model = models[model_name]                              # Get model
         reg = model.fit(pitch_data, y_scores)                   # Train model
-        dump(reg, "../Models/" + pitch_type + "_" + best_model.replace(" ", "_") + '.joblib') 
+
+        if future == False:
+            subdir = "Present"
+        else:
+            subdir = "Future"
+        destination = "../Models/" + metric_to_estimate + "/" + subdir + "/"
+        if not os.path.exists(destination):
+            os.makedirs(destination)
+
+        filename = pitch_type + "_" + best_model.replace(" ", "_") + '.joblib'
+        dump(reg, destination + filename) 

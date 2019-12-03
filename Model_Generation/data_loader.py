@@ -37,7 +37,7 @@ def get_data(start_year, end_year, target='ERA', future=False):
             name = tdf.iloc[x]['Name']
             try:
                 test = label_map[name]
-                out_labels.append(test)
+                out_labels.append((name,test))
                 out.append(tdf.iloc[x])
             except KeyError as e:
                 i+=1

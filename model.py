@@ -7,12 +7,9 @@ from sklearn.neural_network import MLPRegressor
 import random
 from sklearn.model_selection import cross_validate
 import sklearn
-from skorch.dataset import Dataset
 from sklearn.svm import SVR
 from sklearn.ensemble import AdaBoostRegressor
-import torch.nn as nn
-import torch
-import torch.nn.functional as f
+
 
 device = 'cuda'
 

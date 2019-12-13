@@ -1,26 +1,17 @@
-import pandas as pd
 import numpy as np
-from sklearn import linear_model
-
-from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split
-from sklearn.neural_network import MLPRegressor
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import SVR
-from sklearn.ensemble import AdaBoostRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error
-
-from statistics import mode
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from joblib import dump, load
 from data_loader import get_data
 import os
+
 
 # The metrics we are interested in predicting
 intersting_metrics = ['ERA', 'xFIP', 'K/9', 'H/9', 'AVG', 'BABIP', 'GB%']
 
 # All pitch types we are interested in
 pitch_types = ['SL', 'FF', 'CU', 'FT', 'CH', 'FC', 'KC', 'SI', 'PO', 'FS']
-# intersting_metrics = ['ERA']
+
+# Whether you want to predict the future or not
 future = True
 
 # WHICH METRIC WE WANT TO CREATE A MODEL FOR
@@ -36,7 +27,12 @@ for metric_to_estimate in intersting_metrics:
     predictions[metric_to_estimate] = []
     actuals[metric_to_estimate] = []
 
-    df, labels = get_data(2018, 2019, target=metric_to_estimate, future=future)
+    if future:
+        # Use 2018 data to predict 2019 labels
+        df, labels = get_data(2018, 2018, target=metric_to_estimate, future=future)
+    else:
+        # Use 2019 data to predict 2019 dlabels
+        df, labels = get_data(2019, 2019, target=metric_to_estimate, future=future)
 
     # Extract names of players in a given year
     names = np.array(labels[['Name']].values.tolist())
@@ -66,8 +62,6 @@ for metric_to_estimate in intersting_metrics:
 
     # For every pitch we are concerned with
     for pitch_type in pitch_types:
-
-
 
         # to store all useful data
         pitch_data = []
@@ -160,13 +154,17 @@ for i in range(len(sorted_x)):
 
 for met in intersting_metrics:
 
-    # mse = mean_squared_error(actuals[met], predictions[met])
+    mse = mean_squared_error(actuals[met], predictions[met])
     mae = mean_absolute_error(actuals[met], predictions[met])
+    r2 = r2_score(actuals[met], predictions[met])
 
     print(met)
-    # print("MSE: " + str(mse))
+    print("MSE: " + str(mse))
     print("MAE: " + str(mae))
+    print("R2: " + str(r2))
 
 pass
+
+
 
 

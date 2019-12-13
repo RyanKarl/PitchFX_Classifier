@@ -15,13 +15,12 @@ from joblib import dump, load
 from data_loader import get_data
 import os
 
-# The metrics we are interested in predicting
+# The metrics we are interested in predicting, for this we just want to see best xFIP
 intersting_metrics = ['xFIP']#, 'xFIP']#, 'K/9', 'H/9', 'AVG', 'BABIP', 'GB%']
 
 # All pitch types we are interested in
 pitch_types = ['SL', 'FF', 'CU', 'FT', 'CH', 'FC', 'KC', 'SI', 'PO', 'FS']
 # intersting_metrics = ['ERA']
-future = True
 
 # WHICH METRIC WE WANT TO CREATE A MODEL FOR
 all_results = {}
@@ -31,7 +30,7 @@ predictions = {}
 
 for metric_to_estimate in intersting_metrics:
 
-    df, labels = get_data(2019, 2020, target=metric_to_estimate, future=False)
+    df, labels = get_data(2019, 2019, target=metric_to_estimate, future=False) # predict 2020 labels
 
     # Extract names of players in a given year
     names = np.array(labels[['Name']].values.tolist())
@@ -89,10 +88,7 @@ for metric_to_estimate in intersting_metrics:
             all_results[n][pitch_type] = []
             y_scores.append(label_map[n])
 
-        if future == False:
-            subdir = "Present"
-        else:
-            subdir = "Future_Incl2019"
+        subdir = "Future_Incl2019" 
         model_location = "../Models/" + metric_to_estimate + "/" + subdir + "/"
         scaler_location = "../Scalers/" + metric_to_estimate + "/" + subdir + "/"
         pca_location = "../PCA_Models/" + metric_to_estimate + "/" + subdir + "/"
@@ -110,7 +106,6 @@ for metric_to_estimate in intersting_metrics:
                     data = pca.transform(data)
                     prediction = model.predict(data)
                     all_results[name][pitch_type].append(prediction)
-
 
     for player in all_results:
         methods = all_results[player]
@@ -132,12 +127,9 @@ for pitcher in final_results:
 
     best_pitchers[pitcher] = np.mean(diffs)
 
-sorted_x = sorted(best_pitchers.items(), key=lambda kv: kv[1], reverse=True)
+sorted_x = sorted(best_pitchers.items(), key=lambda kv: kv[1], reverse=False)
 
+# print 20 best players in the xFIP metric
 for i in range(20):
     print(sorted_x[i][0])
     print("Predicted: " + str(final_results[sorted_x[i][0]]))
-
-
-
-

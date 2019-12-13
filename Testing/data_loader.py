@@ -5,6 +5,7 @@ import numpy as np
 
 def get_data(start_year, end_year, target='ERA', future=False):
     infos=[]
+    end_year += 1
 
     for x in range(start_year, end_year):
         infos.append('../Data/'+str(x)+'clean.csv')

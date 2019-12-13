@@ -88,7 +88,7 @@ for metric_to_estimate in intersting_metrics:
             all_results[n][pitch_type] = []
             y_scores.append(label_map[n])
 
-        subdir = "Future_Incl2019" 
+        subdir = "Future_Incl2019"
         model_location = "../Models/" + metric_to_estimate + "/" + subdir + "/"
         scaler_location = "../Scalers/" + metric_to_estimate + "/" + subdir + "/"
         pca_location = "../PCA_Models/" + metric_to_estimate + "/" + subdir + "/"

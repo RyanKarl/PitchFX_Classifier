@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 from sklearn import linear_model
 
@@ -11,25 +10,31 @@ from sklearn.ensemble import AdaBoostRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 from statistics import mode
-from joblib import dump, load
+from joblib import dump
 from data_loader import get_data
 import os
 
 
 # The metrics we are interested in predicting
 intersting_metrics = ['ERA', 'xFIP', 'K/9', 'H/9', 'AVG', 'BABIP', 'GB%']
-# intersting_metrics = ['ERA']
+
+# Set to true to predict future
 future = False
 
 # WHICH METRIC WE WANT TO CREATE A MODEL FOR
 for metric_to_estimate in intersting_metrics:
 
-    df, labels = get_data(2015, 2019, target=metric_to_estimate, future=future)
+    if future:
+        # max year is 2017 data with 2018 labels
+        df, labels = get_data(2015, 2017, target=metric_to_estimate, future=future)
+    else:
+        # max year is 2018 with 2018 labels
+        df, labels = get_data(2015, 2018, target=metric_to_estimate, future=future)
 
     # Extract names of players in a given year
     names = np.array(labels[['Name']].values.tolist())
     names = names[:,0]
-    print(metric_to_estimate)
+    print("Metric generating models for: " + metric_to_estimate)
     # Extract data for that metric
     metric = np.array(labels[[metric_to_estimate]].values.tolist())
     metric = metric[:, 0]
@@ -50,14 +55,6 @@ for metric_to_estimate in intersting_metrics:
     # All pitch types we are interested in
     pitch_types = ['SL','FF','CU','FT','CH','FC','KC','SI','PO','FS']
 
-    # IF YOU WANT TO PLAY AROUND WITH THE NETWORK PARAMETERS
-    # net = MLPRegressor(hidden_layer_sizes=(5,),
-    #                                        activation='relu',
-    #                                        solver='adam',
-    #                                        learning_rate='adaptive',
-    #                                        max_iter=20000,
-    #                                        learning_rate_init=0.01,
-    #                                        alpha=0.01)
     net = MLPRegressor(max_iter=20000) # otherwise use default params
 
     # All models we want to test, use default parameters for all
@@ -68,7 +65,7 @@ for metric_to_estimate in intersting_metrics:
     for pitch_type in pitch_types:
         # to store all useful data
         pitch_data = []
-        print("\n\n" + pitch_type)
+        print("\n\nPitch type: " + pitch_type)
         # For all features in the data
         for column in df.columns.values:
             # Unused columns
@@ -100,15 +97,16 @@ for metric_to_estimate in intersting_metrics:
 
         for random_split in range(10):
 
-            # Create training/testing split
-            X_train, X_test, y_train, y_test = train_test_split(pitch_data, y_scores, test_size = 0.33, random_state = 10*random_split)
+            # Create training/testing split, the random seed is something that results in the same splits each time
+            # we run the program but each of the 10 individual splits are different
+            X_train, X_test, y_train, y_test = train_test_split(pitch_data, y_scores,
+                                                                test_size = 0.33, random_state = 10*random_split)
 
             # Normalize all features between 0 and 1 independently
             scaler = MinMaxScaler(feature_range=(0, 1))
             scaler.fit(X_train)
             X_train = scaler.transform(X_train)
             X_test = scaler.transform(X_test)
-            # print('Number of elements in test set: ' + str(len(X_test)))
 
             # Reduce dimensionality to 90% of the explained variance or 10, whichever is minimum
             pca = PCA(n_components=10)

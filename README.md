@@ -21,7 +21,7 @@ To test these generated models:
 - Open file test_models.py.
 - Again edit future variable as above to switch between the two settings; present and future.
 - python3 test_models.py.
-- This should output all results seen in table 1 in the paper. 
+- This should output all results (see table 1 in the paper).
 
 To predict 2020 statistics:
 - python3 predict_future.py.
